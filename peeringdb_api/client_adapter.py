@@ -1,4 +1,4 @@
-from django_peeringdb.client_adaptor import backend
+from peeringdb_api import backend
 
 
 def load_backend(**kwargs):
