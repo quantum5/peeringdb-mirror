@@ -13,7 +13,7 @@ class Backend(OldBackend):
         for field in obj._meta.get_fields():
             if isinstance(field, DateTimeField):
                 value = getattr(obj, field.name)
-                if timezone.is_naive(value):
+                if value and timezone.is_naive(value):
                     setattr(obj, field.name, timezone.make_aware(value, utc))
 
         super().clean(obj)
