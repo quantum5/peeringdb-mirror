@@ -1,22 +1,20 @@
-"""
-URL configuration for peeringdb_mirror project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
 from django.urls import path
+from django_peeringdb import models
+
+from peeringdb_api.views import PeeringDBListView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('api/org', PeeringDBListView.as_view(model=models.Organization)),
+    path('api/fac', PeeringDBListView.as_view(model=models.Facility)),
+    path('api/net', PeeringDBListView.as_view(model=models.Network)),
+    path('api/ix', PeeringDBListView.as_view(model=models.InternetExchange)),
+    path('api/campus', PeeringDBListView.as_view(model=models.Campus)),
+    path('api/carrier', PeeringDBListView.as_view(model=models.Carrier)),
+    path('api/carrierfac', PeeringDBListView.as_view(model=models.CarrierFacility)),
+    path('api/ixfac', PeeringDBListView.as_view(model=models.InternetExchangeFacility)),
+    path('api/ixlan', PeeringDBListView.as_view(model=models.IXLan)),
+    path('api/ixpfx', PeeringDBListView.as_view(model=models.IXLanPrefix)),
+    path('api/netfac', PeeringDBListView.as_view(model=models.NetworkFacility)),
+    path('api/netixlan', PeeringDBListView.as_view(model=models.NetworkIXLan)),
+    path('api/poc', PeeringDBListView.as_view(model=models.NetworkContact)),
 ]
