@@ -1,7 +1,8 @@
 # PeeringDB Mirror
 
 This repository implements a simple, Django-based PeeringDB mirroring service
-based on `django-peeringdb` and `peeringdb-py`.
+based on `django-peeringdb` and `peeringdb-py`. The UI is extracted from the
+2-clause BSD-licensed [official PeeringDB repository][pdb].
 
 Currently, this doesn't have full PeeringDB API compatibility, but there is a
 sufficiently strong foundation to make that dream easily achievable through a
@@ -62,3 +63,5 @@ ExecStart=/path/to/peeringdb-mirror/venv/bin/uwsgi /path/to/peeringdb.ini
 [Install]
 WantedBy=multi-user.target
 ```
+
+[pdb]: https://github.com/peeringdb/peeringdb
