@@ -1,4 +1,6 @@
 Django>=5.2,<6
-peeringdb
+peeringdb~=2.4.1
 django-peeringdb
 djangorestframework>=3.14.0
+django-haystack>=3
+Unidecode>=1.0.23

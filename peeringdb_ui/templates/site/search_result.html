@@ -1,0 +1,125 @@
+{% load util i18n static %}
+{% with page_title=request|make_page_title_for_search_result %}
+{% include 'site/header.html' %}
+{% endwith %}
+
+<div class="view_info left">
+  <div class="container">
+    <div id="search-list-view" class="search-result mt-3" style="display: none;">
+      <div class="mb-3">
+        {% trans "About" %} {{ total_results }} {% trans "results" %}
+      </div>
+
+      {% for result in combined_results %}
+      <div class="mb-4">
+        <h4>
+          <a href="/{{ result.ref_tag }}/{{ result.id }}">{{ result.name }}</a>
+          {% if result.sponsorship %}
+          <a href="/sponsors" class="sponsor {{ result.sponsorship.css }}">{{ result.sponsorship.label }} {% trans "sponsor" %}</a>
+          {% endif %}
+        </h4>
+        {% if result.sub_name %}<div class="highlight">{{ result.sub_name }}</div>{% endif %}
+        <div class="text-success">
+          {{ result.ref_tag|obj_type }}
+        </div>
+      </div>
+      {% endfor %}
+
+      {% if combined_results.paginator.num_pages > 1 %}
+      <nav aria-label="Search results pages">
+        <ul class="pagination justify-content-center">
+          {% if combined_results.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?{% for key,value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ combined_results.previous_page_number }}">Previous</a>
+          </li>
+          {% endif %}
+
+          {% if visible_page_range.0 > 1 %}
+          <li class="page-item">
+            <a class="page-link" href="?{% for key,value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">1</a>
+          </li>
+          {% if visible_page_range.0 > 2 %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+          {% endif %}
+          {% endif %}
+
+          {% for num in visible_page_range %}
+          <li class="page-item {% if combined_results.number == num %}active{% endif %}">
+            <a class="page-link" href="?{% for key,value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+          </li>
+          {% endfor %}
+
+          {% if visible_page_range|last < combined_results.paginator.num_pages %}
+          {% if visible_page_range|last < combined_results.paginator.num_pages|add:"-1" %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+          {% endif %}
+          <li class="page-item">
+            <a class="page-link" href="?{% for key,value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ combined_results.paginator.num_pages }}">{{ combined_results.paginator.num_pages }}</a>
+          </li>
+          {% endif %}
+
+          {% if combined_results.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?{% for key,value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ combined_results.next_page_number }}">Next</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+
+    <div id="search-category-view" class="search-result">
+      <div class="row">
+        <div class="col-md-3 col-sm-12 col-12">
+          <div class="view_title">{% trans "Exchanges" %} ({{ count_ixp }})</div>
+          {% for row in search_ixp %}
+          <div class="result_row">
+            <a href="/{{'InternetExchange'|ref_tag}}/{{row.id}}">{{row.name}}</a>
+            {% if row.sub_name %}<div class="highlight">{{ row.sub_name }}</div>{% endif %}
+          </div>
+          {% endfor %}
+
+        </div>
+        <div class="col-md-3 col-sm-12 col-12">
+          <div class="view_title">{% trans "Networks" %} ({{ count_net }})</div>
+          {% for row in search_net%}
+          <div class="result_row">
+            <a href="/{{'Network'|ref_tag}}/{{row.id}}">{{row.name}}</a>
+            {% if row.sub_name %}<div class="highlight">{{ row.sub_name }}</div>{% endif %}
+          </div>
+          {% endfor %}
+
+
+        </div>
+        <div class="col-md-3 col-sm-12 col-12">
+          <div class="view_title">{% trans "Facilities" %} ({{ count_fac }})</div>
+          {% for row in search_fac %}
+          <div class="result_row">
+            <a href="/{{'Facility'|ref_tag}}/{{row.id}}">{{row.name}}</a>{% if row.campus %}<span class="icon muted"><a href="/campus/{{ row.campus }}"><img src="{% static "campus.svg" %}"></a></span>{% endif %}
+            {% if row.sub_name %}<div class="highlight">{{ row.sub_name }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="col-md-3 col-sm-12 col-12">
+          <div class="view_title">{% trans "Organizations" %} ({{ count_org }})</div>
+          {% for row in search_org %}
+          <div class="result_row">
+            <a href="/{{'Organization'|ref_tag}}/{{row.id}}">{{row.name}}</a>
+            {% if row.sponsorship %}
+            <a href="/sponsors" class="sponsor {{ row.sponsorship.css }}">{{ row.sponsorship.label }} {% trans "sponsor" %}</a>
+            {% endif %}
+            {% if row.sub_name %}<div class="highlight">{{ row.sub_name }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'site/footer.html' %}

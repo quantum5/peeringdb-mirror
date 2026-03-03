@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django_peeringdb',
     'peeringdb_api',
     'peeringdb_ui',
+    'haystack',
 ]
 
 MIDDLEWARE = [
@@ -99,3 +100,11 @@ COUNTRIES_OVERRIDE = {
 # PeeringDB configuration
 PEERINGDB_API = 'https://www.peeringdb.com/api'
 PEERINGDB_API_KEY = None
+SEARCH_RESULTS_LIMIT = 1000
+SEARCH_RESULTS_AUTOCOMPLETE_LIMIT = 40
+
+HAYSTACK_CONNECTIONS = {
+    "default": {
+        "ENGINE": "haystack.backends.simple_backend.SimpleEngine"
+    },
+}

@@ -105,6 +105,30 @@ def pretty_speed(value):
     except ValueError:
         return value
 
+
 @register.filter
 def checkmark(value):
     return static('checkmark.png' if value else 'checkmark-off.png')
+
+
+@register.filter
+def make_page_title_for_search_result(request):
+    """
+    Returns a page title to use on the quick search results page
+    """
+
+    if request.GET.get("q"):
+        return f"{request.GET.get('q')} - PeeringDB Mirror search"
+
+
+@register.filter
+def obj_type(ref_tag):
+    obj_types = {
+        "org": "Organization",
+        "net": "Network",
+        "ix": "Internet Exchange",
+        "fac": "Facility",
+        "carrier": "Carrier",
+        "campus": "Campus",
+    }
+    return obj_types[ref_tag]
