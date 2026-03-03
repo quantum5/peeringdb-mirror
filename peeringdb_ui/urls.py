@@ -9,7 +9,7 @@ from peeringdb_ui.views.search import request_search
 urlpatterns = [
     path('', view_index, name='home'),
     path('search', request_search),
-    path('net/<int:pk>/', view_network, name='net-view'),
-    path('ix/<int:pk>/', view_exchange, name='ix-view'),
-    path('fac/<int:pk>/', view_facility, name='fac-view'),
+    path('net/<int:pk>', view_network, name='net-view'),
+    path('ix/<int:pk>', view_exchange, name='ix-view'),
+    path('fac/<int:pk>', view_facility, name='fac-view'),
 ]
