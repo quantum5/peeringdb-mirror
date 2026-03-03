@@ -1,3 +1,10 @@
+def get_fac_stats(netfac, ixfac):
+    return {
+        "networks": netfac.filter(status="ok").count(),
+        "ix": ixfac.filter(status="ok").count(),
+    }
+
+
 def get_ix_stats(netixlan, ixlan):
     peer_count = netixlan.values("net").distinct().filter(status="ok").count()
     connections_count = netixlan.filter(ixlan=ixlan, status="ok").count()

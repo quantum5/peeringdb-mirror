@@ -1,0 +1,109 @@
+{% load util %}
+{% load i18n %}
+
+<!-- LOCAL EXCHANGES-->
+
+<div class="list" id="api-listing-ixfac" data-sort-container=".scrollable" data-sort-row=".row">
+  <div class="row">
+    <div class="col-6 col-sm-8 col-md-8 d-flex justify-content-start align-items-center">
+      <h5>{% trans "Exchanges" %}</h5>
+      {% if user_exchanges %}
+      <a href="#" id="add-your-exchange-btn" class="btn btn-sm btn-primary" style="margin-left: 10px; margin-bottom: 0px; padding: 0.3rem 0.5rem; font-size: 0.80rem">
+        {% trans "Add your exchange" %}
+      </a>
+      <div id="exchange-selection-menu" class="dropdown-menu" style="display: none;">
+        {% for ix in user_exchanges %}
+        <a class="dropdown-item add-exchange-item" href="#" data-ix-id="{{ ix.id }}" data-ix-name="{{ ix.name }}">{{ ix.name }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+    <div class="col-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-exchanges" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-4 col-sm-4 col-md-4">
+      <div data-sort-target=".exchange" data-sort-initial="asc">{% trans "Exchange" %}</div>
+    </div>
+    <div class="col-5 col-sm-5 col-md-5">
+      <div data-sort-target=".name">{% trans "Long Name" %}</div>
+    </div>
+    <div class="col-3 col-sm-3 col-md-3">
+      <div data-sort-target=".participants" class="numeric">{% trans "Networks" %}</div>
+    </div>
+  </div>
+
+  <div class="scrollable" id="list-exchanges">
+
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by" %} <b>{% trans "Exchange" %}</b> {% trans "or" %} <b>{%trans "Long Name" %}.</b></div>
+    </div>
+
+    {% for x in data.exchanges %}
+
+    <div class="row item">
+      <div class="col-4 col-sm-4 col-md-4">
+        <div class="exchange" data-sort-value="{{ x.ix.name|lower }}" data-filter-value="{{ x.ix.name }}">
+          <a href="/{{x.ix|ref_tag}}/{{ x.ix.id }}">{{ x.ix.name }}</a>
+        </div>
+      </div>
+      <div class="col-5 col-sm-5 col-md-5">
+        <div class="name" data-sort-value="{{ x.ix.name_long|lower }}" data-filter-value="{{ x.ix.name_long }}">{{ x.ix.name_long }}</div>
+      </div>
+      <div class="col-3 col-sm-3 col-md-3">
+        {% with x.ix.net_count as num %}
+        <div class="participants" data-sort-value="{{ num }}">{{ num }}</div>
+        {% endwith %}
+      </div>
+    </div>
+
+    {% endfor %}
+
+  </div>
+</div>
+
+<!-- CARRIERS -->
+
+<div class="list" id="api-listing-carrier" data-sort-container=".scrollable" data-sort-row=".row">
+  <div class="row">
+    <div class="col-6 col-sm-8 col-md-8 d-flex justify-content-start align-items-center">
+      <h5>{% trans "Carriers" %}</h5>
+    </div>
+    <div class="col-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-carriers" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-8 col-sm-8 col-md-8">
+      <div data-sort-target=".carrier" data-sort-initial="asc">{% trans "Carrier" %}</div>
+    </div>
+    <div class="col-4 col-sm-4 col-md-4">
+    </div>
+  </div>
+
+  <div class="scrollable" id="list-carriers">
+
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by" %} <b>{% trans "Name" %}</b></div>
+    </div>
+
+    {% for x in data.carriers %}
+    {% if x.status == "ok" %}
+    <div class="row item" data-edit-id="{{ x.id }}">
+      <div class="col-8 col-sm-8 col-md-8">
+        <div class="carrier" data-sort-value="{{ x.carrier.name|lower }}" data-filter-value="{{ x.carrier.name }}">
+          <a href="/{{x.carrier|ref_tag}}/{{ x.carrier.id }}">{{ x.carrier.name }}</a>
+        </div>
+      </div>
+      <div class="col-4 col-sm-4 col-md-4 right">
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+  </div>
+</div>

@@ -1,0 +1,47 @@
+{% load util %}
+{% load i18n %}
+<!-- EXCHANGE POINTS -->
+
+<div class="list" id="api-listing-netixlan" data-sort-container=".scrollable" data-sort-row=".row.item">
+  <div class="row">
+    <div class="col-6 col-sm-8 col-md-8 d-flex justify-content-start align-items-center">
+      <h5>{% trans "Networks" %}</h5>
+    </div>
+    <div class="col-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-peers" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-8 col-sm-8 col-md-8">
+      <div data-sort-target=".peer" data-sort-initial="asc">{% trans "Peer Name" %}</div>
+    </div>
+    <div class="col-4 col-sm-4 col-md-4">
+      <div data-sort-target=".asn" class="numeric">{% trans "ASN" %}</div>
+    </div>
+  </div>
+
+  <div class="scrollable" id="list-peers">
+
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by" %} <b>{% trans "Peer Name" %}</b> {% trans "or" %} <b>{% trans "ASN" %}.</b></div>
+    </div>
+
+    {% for n in data.peers %}
+
+    <div class="row item">
+      <div class="col-8 col-sm-8 col-md-8">
+        <div class="peer" data-sort-value="{{ n.net.name|lower }}" data-filter-value="{{ n.net.name }}">
+          <a href="/{{n.net|ref_tag}}/{{ n.net.id }}">{{ n.net.name }}</a>
+        </div>
+      </div>
+      <div class="col-4 col-sm-4 col-md-4">
+        <div class="asn" data-sort-value="{{ n.net.asn }}" data-filter-value="{{ n.net.asn }}">{{ n.net.asn }}</div>
+      </div>
+
+    </div>
+
+    {% endfor %}
+
+  </div>
+</div>

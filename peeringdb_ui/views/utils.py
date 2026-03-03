@@ -4,6 +4,12 @@ from django.utils.translation import gettext_lazy as _
 
 BOOL_CHOICE = ((False, _("No")), (True, _("Yes")))
 
+BOOL_CHOICE_WITH_OPT_OUT = (
+    (None, _("Not Disclosed")),
+    (False, _("No")),
+    (True, _("Yes")),
+)
+
 
 def view_http_error_404(request):
     template = get_template(request, "site/error_404.html")
