@@ -22,8 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.staticfiles',
     'django_peeringdb',
     'peeringdb_api',
+    'peeringdb_ui',
 ]
 
 MIDDLEWARE = [

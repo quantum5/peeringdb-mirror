@@ -1,0 +1,598 @@
+{% extends "site/base.html" %}
+{% load util %}
+{% load i18n %}
+
+{% block header %}
+{% with page_title=instance|make_page_title %}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% block content %}
+<div id="view" data-ref-tag="{{ ref_tag }}" class="view {% if permissions.can_edit %}editable{% endif %}" {% if permissions.can_edit %}data-edit-target="api:{{ref_tag}}:update" data-edit-id="{{instance.id}}" data-check-incomplete="Yes"{% endif %}>
+
+  {% if permissions.can_edit %}
+  <div class="payload">
+    <div data-edit-name="org_id">{{ instance.org_id }}</div>
+    {% if ref_tag == "net" %}
+    <div data-edit-name="asn">{{ instance.asn }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-12 col-sm-12 col-12">
+      <div class="view_title row">
+        <div class="col-md-8 col-sm-8 col-10"
+             data-edit-required="yes"
+             data-edit-value="{{ data.title }}"
+             data-edit-name="name">{{ data.title }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col-md-6 col-sm-12 col-12 view-left">
+      {% if permissions.can_edit %}
+      <div class="editable popin note info incomplete marg-top-15 marg-bot-15 hidden">
+        {% trans "Some of the data on this page is incomplete, please update the fields marked with" %}
+        <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 0 24 24" width="15px" fill="#FFFFFF"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        {% trans "to improve data quality" %}.
+      </div>
+
+      <div data-edit-geotag="{{ref_tag}}"
+           class="editable popin alert alert-warning geovalidation-warning marg-top-15 marg-bot-15 hidden">
+      </div>
+
+      <div data-edit-geotag="{{ref_tag}}"
+           class="editable popin alert alert-warning suggested-address marg-top-15 marg-bot-15 hidden">
+        <div class="row">
+          <div class="col-8">
+            <p>{% trans "Suggested Address:" %}</p>
+            <div data-edit-field="address1" class="address-field"></div>
+            <div data-edit-field="address2" class="address-field"></div>
+            <span data-edit-field="city" class="address-field"></span>
+            <span data-edit-field="state" class="address-field"></span>
+            <span data-edit-field="zipcode" class="address-field"></span>
+          </div>
+          <div class="col-4 text-right">
+            <a class="btn btn-success suggestion-dismiss">{% trans "Dismiss" %}</a>
+            <a class="btn btn-success suggestion-accept">{% trans "Accept" %}</a>
+            <a class="btn btn-danger suggestion-report"
+               href="mailto:{{ email }}?subject=Address Normalization Issue"
+               target="_blank">
+              {% trans "Report Issue" %}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div data-edit-geotag="{{ref_tag}}"
+           class="editable popin alert alert-info normalized-address marg-top-15 marg-bot-15 hidden">
+        <div class="row">
+          <div class="col-8">
+            <p>{% trans "Your address was automatically normalized to the following:" %}</p>
+            <div class="normalized-fields"></div>
+          </div>
+          <div class="col-4 text-right">
+            <a class="btn btn-success normalization-acknowledge">{% trans "OK" %}</a>
+            <a class="btn btn-danger normalization-report"
+               href="mailto:{{ email }}?subject=Address Normalization Issue"
+               target="_blank">
+              {% trans "Report Issue" %}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {% endif %}
+
+
+      <!-- fields -->
+      <div class="view_fields" id="{{ref_tag}}_section">
+        {% for row in data.fields %}
+        {% if row.last_soc_field %}
+        <div class="row view_value text-center" data-edit-toggled="edit">
+          <button onclick="addSocialMediaElement(this)"
+                  style="
+            display: inline-block;
+            width: auto;
+          "
+                  class="btn btn-primary btn-sm"
+          >+ {% trans "Social Media" %}</button>
+        </div>
+        {% else %}
+        {% if row.type == "group" %}
+        <div class="editable"
+             --data-edit-module="api_grouped_update"
+             data-edit-group="#view"
+             data-edit-target="{{ row.target }}"
+             data-edit-id="{{ row.id }}">
+          <div class="row view_row">
+            <div class="view_field view_sub col-12 col-sm-12 col-md-12">{{ row.label }}</div>
+          </div>
+
+          <div class="editable payload">
+            {% for payload_row in row.payload %}
+            <div data-edit-name="{{ payload_row.name }}">{{ payload_row.value }}</div>
+            {% endfor %}
+          </div>
+
+          {% elif row.type == "group_end" %}
+        </div>
+        {% endif %}
+
+        {% if not row.value|dont_render and row.type != "group" and row.type != "group_end" %}
+        {% if not row.admin or permissions.can_write %}
+        <div class="row view_row {% if row.type == "soc" %} social_media {% endif %} " {% if row.name == "social_media" %} data-edit-toggled="edit" {% endif %}>
+
+        {% if row.type == "sub"%}
+        <!-- sub header -->
+        <div class="view_field view_sub col-12 col-sm-12 col-md-12">{{ row.label }}</div>
+        {% else %}
+        <!-- row header -->
+        <div {% if row.edit_label or row.editable_label %}data-edit-toggled="view"{% endif %} class="view_field col-4 col-sm-5 col-md-4{% if row.help_text %} help-text{% endif %}"
+             {% if row.editable_label %}
+             id="{{ row.label_name }}"
+             {% endif %}
+             {% if row.help_text %}
+             data-bs-toggle="tooltip"
+             data-placement="top"
+             {% if row.notify_incomplete_group %}data-notify-incomplete-group="{{ row.notify_incomplete_group }}"{% endif %}
+             title="{{ row.help_text }}"
+             {% endif %}>{% if row.notify_incomplete %}<svg class="incomplete hidden" xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 0 24 24" width="15px" fill="#FFFFFF"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>{% endif %} {{ row.label }}
+          {% if row.help_text %}<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 0 24 24" width="15px" fill="#FFFFFF"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>{% endif %}
+
+          {% if row.deprecated %}
+          <div class="alert alert-sm" data-edit-toggled="edit">Deprecated: {{ row.deprecated }}</div>
+          {% endif %}
+        </div>
+
+        {% if row.editable_label %}
+
+        <div data-edit-toggled="edit" style="color:black" class="view_field col-4 col-sm-5 col-md-4{% if row.help_text %} help-text{% endif %}"
+             {% if not row.readonly and permissions.can_write %}
+             data-edit-type="select"
+             {% endif %}
+             data-edit-name="{{ row.label_name }}"
+             data-edit-data="{{ row.label_data }}"
+             data-edit-value="{{ row.label_value }}">{{ row|editable_list_value }}</div>
+        {% if row.admin or permissions.can_write %}
+        <button onclick="deleteElement(this)" data-edit-toggled="edit" class="btn btn-primary btn-sm remove-inline-element"> -</button>
+        {% endif %}
+        {% elif row.edit_label %}
+
+        <!-- row header (edit mode), will only be set if `edit_label` is set on the field definition -->
+
+        <div data-edit-toggled="edit" class="view_field col-4 col-sm-5 col-md-4{% if row.help_text or row.edit_help_text %} help-text{% endif %}"
+             {% if row.help_text or row.edit_help_text %}
+             data-bs-toggle="tooltip"
+             data-placement="top"
+             {% if row.notify_incomplete_group %}data-notify-incomplete-group="{{ row.notify_incomplete_group }}"{% endif %}
+             title="{% if row.edit_help_text %}{{ row.edit_help_text }}{% else %}{{ row.help_text }}{% endif %}"
+             {% endif %}>{% if row.notify_incomplete %}<svg class="incomplete hidden" xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 0 24 24" width="15px" fill="#FFFFFF"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>{% endif %} {{ row.edit_label }}
+          {% if row.help_text or row.edit_help_text %}<svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 0 24 24" width="15px" fill="#FFFFFF"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>{% endif %}
+        </div>
+
+        {% endif %}
+
+        <!-- row value -->
+        {% if row.type == "soc" %}
+        <div class="view_value col-8 col-sm-7 col-md-8"
+             {% if not row.readonly and permissions.can_write %}
+             data-edit-type="social_media"
+             {% endif %}
+             {% if row.required %}
+             data-edit-required="yes"
+             {% endif %}
+             data-edit-name="{{ row.name }}">{{ row.value }}</div>
+
+        {% elif row.type == "url" %}
+        <div class="view_value col-8 col-sm-7 col-md-8"
+             {% if not row.readonly and permissions.can_write %}
+             data-edit-type="url"
+             {% endif %}
+             {% if row.required %}
+             data-edit-required="yes"
+             {% endif %}
+             data-edit-name="{{ row.name }}"
+             data-edit-template="link">{% if row.value %}<a href="{{ row.value }}" target="_blank">{{ row.value }}</a>{% endif %}</div>
+
+        {% elif row.type == "email" %}
+        <div class="view_value col-8 col-sm-7 col-md-8"
+             {% if not row.readonly and permissions.can_write %}
+             data-edit-type="email"
+             {% endif %}
+             {% if row.required %}
+             data-edit-required="yes"
+             {% endif %}
+             data-edit-name="{{ row.name }}"
+             data-edit-template="link">{% if row.value %}<a href="mailto:{{ row.value }}">{{ row.value }}</a>{% endif %}</div>
+
+        {% elif row.type == "list" %}
+        <div class="view_value col-8 col-sm-7 col-md-8"
+             {% if not row.readonly and permissions.can_write %}
+             data-edit-type="select"
+             {%   if row.multiple %}
+             data-edit-multiple="yes"
+             {%   endif %}
+             {% endif %}
+             data-edit-name="{{ row.name }}"
+             data-edit-data="{{ row.data }}"
+             {% if row.multiple and row.value %}
+             data-edit-value="{{ row.value|editable_list_join }}">{{ row|editable_list_value }}</div>
+        {% else %}
+        data-edit-value="{{ row.value }}">{{ row|editable_list_value }}</div>
+      {% endif %}
+
+      {% elif row.type == "flags" %}
+      <div class="view_value flags col-8 col-sm-7 col-md-8">
+        {% for flag in row.value %}
+        <span
+            {% if flag.help_text %}
+            data-bs-toggle="tooltip"
+            title="{{ flag.help_text }}"
+            data-placement="right"
+            {% endif %}
+        >
+              <span class="checkmark"
+                    {% if not row.readonly and permissions.can_write %}
+                    data-edit-type="bool"
+                    {% endif %}
+                    data-edit-name="{{ flag.name }}"
+                    data-edit-value="{{ flag.value }}"
+                    data-edit-template="check">
+                    <img class="checkmark" src="{{ flag.value|checkmark }}"
+                    />
+              </span>
+              <span class="enabled">
+                  {{ flag.label }}
+              </span>
+              {% if flag.help_text %}
+              <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 0 24 24" width="15px" fill="#FFFFFF"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+              {% endif %}
+            </span>
+        {% endfor %}
+      </div>
+      {% elif row.type == "action" %}
+      <div class="view_value col-8 col-sm-7 col-md-8 action {% if row.help_text or row.edit_help_text %} help-text {% endif %}" title="{% if row.help_text %}{{ row.help_text }}{% endif %}">
+        {% for action in row.actions %}
+        {% if action.action %}
+        <button class="btn btn-sm" data-placement="right" data-container="body" data-view-action="{{ref_tag}}_{{ action.action }}" {% if action.action == "ixf_request_import" and not instance.ixlan.ixf_ixp_member_list_url %} disabled {% endif %}>{{ action.label }}</button>
+        {% elif action.href %}
+        <a href="{{ action.href }}" class="btn btn-sm" data-placement="right" data-container="body" data-view-action="{{ref_tag}}_{{ action.action }}">{{ action.label }}</a>
+        {% else %}
+        <span class="action-label {{ action.css }} {{ action.label }}">{{ action.label }}</span>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% elif row.type == "fmt-text" %}
+      <div class="view_value col-8 col-sm-7 col-md-8 fmt_text"
+           data-render-markdown="yes"
+           {% if not row.readonly and permissions.can_write %}
+           data-edit-type="markdown"
+           {% endif %}
+           {% if row.required %}
+           data-edit-required="yes"
+           {% endif %}
+           data-edit-value="{{ row.value }}"
+           data-edit-name="{{ row.name }}">
+        {{ row.value }}
+        {% if row.name == "notes" and row.value and request.user.is_authenticated %}
+        <div class="translate">
+          {% comment %} <!-- select name="language-from">
+                              <option value="" selected="selected" selected>Detect</option>
+                              {% for lang in LANGUAGES %} <option value="{{ lang.0 }}">{{ lang.1 }}</option> {% endfor %}
+                            </select -->
+          <!-- select name="language-to">
+            {% for lang in LANGUAGES %}
+              <option value="{{ lang.0 }}"{% ifequal LANGUAGE_CODE lang.0 %} selected="selected"{% endifequal %}>{{ lang.1 }}</option>
+            {% endfor %}
+          </select --> {% endcomment %}
+          <a class="btn btn-primary translate-btn btn-sm" style="vertical-align: bottom;">Translate &#xbb;</a>
+        </div>
+        {% endif %}
+      </div>
+      {% elif row.type == "safe" %}
+      <div class="view_value col-8 col-sm-7 col-md-8"
+           {% if not row.readonly and permissions.can_write %}
+           data-edit-type="text"
+           {% endif %}
+           {% if row.required %}
+           data-edit-required="yes"
+           {% endif %}
+           data-edit-name="{{ row.name }}">{{ row.value|safe }}</div>
+
+      {% elif row.type == "bool" %}
+      <div class="view_value col-8 col-sm-7 col-md-8">
+            <span class="checkmark"
+                  {% if not row.readonly and permissions.can_write %}
+                  data-edit-type="bool"
+                  {% endif %}
+                  data-edit-name="{{ row.name }}"
+                  data-edit-value="{{ row.value }}"
+                  data-edit-template="check">
+                <img class="checkmark" src="{{ row.value|checkmark }}" />
+            </span>
+      </div>
+      {% elif row.type == "location"  %}
+      <div class="view_value inline col-8 col-sm-7 col-md-8">
+            <span class="inline delimited"
+                  {% if not row.readonly and permissions.can_write %}
+                  data-edit-type="string"
+                  data-edit-placeholder="City"
+                  {% endif %}
+                  {% if row.required %}
+                  data-edit-required="yes"
+                  {% endif %}
+                  data-edit-name="city">{{ row.value.city }}</span>{% if row.value.state or row.value.zipcode %}<span data-edit-toggled="view">,</span>{% endif %}
+
+        <span class="inline delimited"
+              {% if not row.readonly and permissions.can_write %}
+              data-edit-type="string"
+              data-edit-placeholder="State"
+              {% endif %}
+              {% if row.required %}
+              data-edit-required="yes"
+              {% endif %}
+              data-edit-name="state">{{ row.value.state }}</span>{% if row.value.zipcode %}<span data-edit-toggled="view">,</span>{% endif %}
+
+        <span class="inline"
+              {% if not row.readonly and permissions.can_write %}
+              data-edit-type="string"
+              data-edit-placeholder="Zip-Code"
+              {% endif %}
+              {% if row.required %}
+              data-edit-required="yes"
+              {% endif %}
+              data-edit-name="zipcode">
+                {{ row.value.zipcode }}
+            </span>
+      </div>
+      {% elif row.type == "geocode" %}
+      <div id="geocode" class="view_value col-8 col-sm-7 col-md-8">
+        {% if ref_tag == "fac" %}
+        <span class="inline delimited show-on-edit"
+              {% if not row.readonly and permissions.can_write %}
+              data-edit-type="latitude"
+              data-edit-placeholder="Latitude"
+              {% endif %}
+              {% if row.required %}
+              data-edit-required="yes"
+              {% endif %}
+              data-edit-name="latitude">
+                {{ row.value.latitude | default:"" }}
+            </span>
+        <span class="inline delimited show-on-edit"
+              {% if not row.readonly and permissions.can_write %}
+              data-edit-type="longitude"
+              data-edit-placeholder="Longitude"
+              {% endif %}
+              {% if row.required %}
+              data-edit-required="yes"
+              {% endif %}
+              data-edit-name="longitude">
+                {{ row.value.longitude | default:"" }}
+            </span>
+        <span class="show-on-edit" id="geocode_preview">
+              {% if row.value.latitude and row.value.longitude %}
+                <a target="_blank" rel="noopener noreferrer" href="https://maps.google.com/?q={{ row.value.latitude|stringformat:"f" }},{{ row.value.longitude|stringformat:"f" }}">Preview in google maps</a>
+          {% endif %}            </span>
+        <div class="hide-on-edit">
+          {% if row.value.latitude and row.value.longitude  %}
+          <span id="geocode_active">
+                <a href="https://maps.google.com/?q={{ row.value.latitude|stringformat:"f" }},{{ row.value.longitude|stringformat:"f" }}">{{ row.value.latitude }}, {{ row.value.longitude }}</a>
+              </span>
+          {% else %}
+          <span id="geocode_active"></span>
+          <div id="geocode_inactive" class="note inactive">
+            {% trans "Geocode data for this entity could not be obtained at this point. This is done automatically upon address field changes."%}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        {% if row.value.latitude and row.value.longitude %}
+        <span id="geocode_active">
+                <a href="https://maps.google.com/?q={{ row.value.latitude|stringformat:"f" }},{{ row.value.longitude|stringformat:"f" }}">{{ row.value.latitude }}, {{ row.value.longitude }}</a>
+              </span>
+        <div id="geocode_inactive" class="note inactive hidden">
+          {% trans "Geocode data for this entity could not be obtained at this point. This is done automatically upon address field changes."%}
+        </div>
+        {% else %}
+        <span id="geocode_active"></span>
+        <div id="geocode_inactive" class="note inactive">
+          {% trans "Geocode data for this entity could not be obtained at this point. This is done automatically upon address field changes."%}
+        </div>
+        {% endif %}
+        {% endif %}
+      </div>
+      {% elif row.type == "entity_link"  %}
+
+      <div class="view_value col-8 col-sm-7 col-md-8">
+        <a href="{{ row.link }}">{{ row.value }}</a>
+      </div>
+
+      {% elif row.type == "image" %}
+
+      <div class="view_value col-8 col-sm-7 col-md-8 img {{ row.name }}"
+           data-edit-upload-path="{{ row.upload_handler }}"
+           {% if not row.readonly and permissions.can_write %}
+           data-edit-type="image"
+           {% endif %}
+           {% if row.required %}
+           data-edit-required="yes"
+           {% endif %}
+           {% if row.accept %}
+           data-edit-accept="{{ row.accept }}"
+           {% endif %}
+           {% if row.max_size %}
+           data-edit-max-size="{{ row.max_size }}"
+           {% endif %}
+           data-edit-value="{{ row.value }}"
+           data-edit-name="{{ row.name }}"
+           data-edit-not-org-logo="{{ row.is_not_org_logo }}"
+           data-edit-object-type="{{ row.object_type }}">
+        <img class="img-fluid"{% if row.value %} src="{{ row.value }}"{% endif %} alt="{{ row.label }}" style="{% if row.max_height %}max-height: {{ row.max_height }}px;{% endif %} {% if not row.value %}display:none;{% endif %}">
+      </div>
+
+      {% else %}
+      <div class="view_value col-8 col-sm-7 col-md-8"
+           {% if not row.readonly and permissions.can_write %}
+           data-edit-type="string"
+           {% endif %}
+           {% if row.required %}
+           data-edit-required="yes"
+           {% endif %}
+           data-edit-name="{{ row.name }}">{{ row.value }}</div>
+
+      {% endif %}
+      {% endif %}
+    </div>
+    {% endif %}
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  {% include bottom_template_name with data=data instance=instance permissions=permissions %}
+
+</div>
+
+<div class="col-md-6 col-sm-12 col-12">
+  {% include side_template_name with data=data instance=instance permissions=permissions %}
+</div>
+
+</div>
+<div class="view_title right" data-edit-toggled="edit"  style="display:none;">
+  <a class="btn btn-primary" data-edit-action="toggle-edit">{% trans "Cancel" %}</a>
+  <a class="btn btn-primary" data-edit-action="submit">{% trans "Save" %}</a>
+</div>
+</div>
+
+{% if permissions.can_write %}
+{% if ref_tag == "fac" %}
+<script>
+  $(document).on('input', 'input.latitude, input.longitude',() => {
+    let latitude = PeeringDB.escape_html($("input.latitude").val().trim())
+    let longitude = PeeringDB.escape_html($("input.longitude").val().trim())
+    const geo_preview = $("#geocode_preview");
+    validate_lat = latitude !== "" && isFinite(latitude) && Math.abs(latitude) <= 90
+    validate_lon = longitude !== "" && isFinite(longitude) && Math.abs(longitude) <= 180;
+    if (validate_lat && validate_lon){
+      let link = `https://maps.google.com/?q=${latitude},${longitude}`
+      let contents = `<a target="_blank" rel="noopener noreferrer" href="${link}">Preview in google maps</a>`
+      geo_preview.empty().append(contents);
+    }else{
+      let contents = `Please enter valid geocode`
+      geo_preview.empty().append(contents);
+    }
+});
+</script>
+{% endif %}
+<script language="javascript" type="text/javascript">
+  $('a.btn.btn-primary[data-edit-action="toggle-edit"]').click(()=>{
+    $("div[data-edit-name='irr_as_set']").tooltip('dispose');
+  })
+  const deleteElement = (e) => {
+
+    $(e).parent().remove();
+
+    // mark form as changed
+    $('.view.editable').data("edit-changed", "yes");
+  }
+  const addSocialMediaElement = (e) => {
+    $(e).parent().before(`{% include "site/social_media.html" with social_media_enum=data.social_media_enum %}`);
+    var idx = $(".new_service_identifier").length
+    var new_service_identifier = $(".new_service_identifier[data-edit-name=smi_value_]")
+    new_service_identifier.attr("data-edit-name", "smi_value_" + idx)
+    new_service_identifier.editable("toggle");
+  }
+
+$(document).ready(function() {
+  PeeringDB.incomplete_data_notify();
+  PeeringDB.ViewActions.init();
+  checkAsSet();
+
+  var editForm = $('[data-edit-target="api:{{ref_tag}}:update"]')
+  editForm.on('action-success:submit', function(e,data) {
+    if(PeeringDB.ixf_proposals && PeeringDB.ixf_proposals.require_refresh) {
+      document.location.href = document.location.href;
+    } else {
+      PeeringDB.ViewTools.after_submit(editForm, data);
+      setTimeout(PeeringDB.incomplete_data_notify, 500);
+    }
+  });
+
+  editForm.on('action-success:toggle', function(e, payload) {
+    if(payload.mode == "view") {
+      if(PeeringDB.ixf_proposals && PeeringDB.ixf_proposals.require_refresh) {
+        document.location.href = document.location.href;
+      }
+    }
+  })
+
+
+});
+</script>
+{% endif %}
+
+<script>
+  $(document).ready(function(){
+    $('[data-bs-toggle="tooltip"]').tooltip({container:"body", trigger:"hover"});
+  })
+</script>
+
+{% if ref_tag != "org" and  ref_tag != "campus" %}
+<!-- EXPORT FORM LOGIC -->
+<script>
+  const checkAllExportTypes = () => {
+      let allChecked = true;
+      $("#export-field input[type='checkbox']:not(#export_all)").each(function() {
+          if (!$(this).prop("checked")) {
+              allChecked = false;
+          }
+      });
+
+      $("#export_all").prop("checked", allChecked);
+  }
+
+  $("#export_all").change((e) => {
+      const toggleChecked = e.target.checked;
+      $("#export-field input[type='checkbox']").prop("checked", toggleChecked);
+  });
+
+  $("#export-field input[type='checkbox']").change(function() {
+    if(!$('#export-format input[type="checkbox"][value="CSV"]').is(":checked")){
+      if (!$(this).prop("checked")) {
+        $("#export_all").prop("checked", false);
+      } else {
+        checkAllExportTypes();
+      }
+    }else{
+      $('#export-field input[type="checkbox"]').not(this).prop('checked', false); // Uncheck other checkboxes
+    }
+  });
+
+  $('#export-format input[type="checkbox"]').change(function() {
+    $('#export-format input[type="checkbox"]').not(this).prop('checked', false); // Uncheck other checkboxes
+
+    if($('#export-format input[type="checkbox"][value="CSV"]').is(":checked")){
+      $('#export_all').attr('disabled', true)
+      $('#export_all').prop("checked", false)
+
+      if($("#export-field input[type='checkbox']:checked").length > 1) {
+        $('#export-field input[type="checkbox"]:checked').not(':last').prop('checked', false);
+      }
+    }else{
+      $('#export_all').attr('disabled', false)
+    }
+  });
+</script>
+{% endif %}
+
+{% if permissions.can_use_tools %}
+{% include tools_template_name with data=data instance=instance permissions=permissions %}
+{% endif %}
+
+{% include asset_template_name with data=data instance=instance permissions=permissions %}
+{% endblock %}

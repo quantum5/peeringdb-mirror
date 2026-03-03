@@ -1,4 +1,6 @@
-from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import include, path
 from django_peeringdb import models
 
 from peeringdb_api.views import PeeringDBDetailView, PeeringDBListView
@@ -31,4 +33,8 @@ urlpatterns = [
     path('api/netfac/<int:pk>', PeeringDBDetailView.as_view(model=models.NetworkFacility)),
     path('api/netixlan/<int:pk>', PeeringDBDetailView.as_view(model=models.NetworkIXLan)),
     path('api/poc/<int:pk>', PeeringDBDetailView.as_view(model=models.NetworkContact)),
+
+    path('', include('peeringdb_ui.urls')),
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

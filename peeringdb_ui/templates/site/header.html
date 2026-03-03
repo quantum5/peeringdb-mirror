@@ -1,0 +1,50 @@
+{% load i18n static %}
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>{{ page_title|default:"PeeringDB" }}</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <link rel="canonical" href="https://www.peeringdb.com{{ request.get_full_path }}" />
+  <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+  {% block css %}
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" type="text/css" href="{% static 'site.css' %}" />
+  {% endblock %}
+  {{ form.media }}
+</head>
+
+<body>
+
+<div class="header" id="header">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3 col-md-4 col-sm-4 col-12 logo-container">
+        <a href="/"><img id="logo" class="logo img-fluid" src="{% static 'pdb-logo-coloured.png' %}"/></a>
+      </div>
+      <div class="col-lg-5 col-md-5 col-sm-5 col-12 search-container">
+        <form action="/search{% if not search_version or search_version == 2 %}/v2{% endif %}" id="quick-search" method="POST">
+          {% csrf_token %}
+          <input placeholder="{% trans "Search here for a network, IX, or facility." %}" value="{{ request.GET.q }}" class="form-control" name="term" id="search" type="text" />
+        </form>
+        <div class="row">
+          <div class="col-6 col-sm-6">
+            <div class="advanced-search">
+              <a href="/advanced_search">{% trans "Advanced Search" %}</a>
+            </div>
+          </div>
+          <div class="col-6 col-sm-6 right">
+            <div class="v2-search">
+              {% if not search_version or search_version == 2%}
+              <a href="/search?q={{ request.GET.q }}">{% trans "Legacy Search" %}</a>
+              {% elif search_version == 1 %}
+              <a href="/search/v2?q={{ request.GET.q }}">{% trans "v2 Search" %}</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

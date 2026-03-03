@@ -1,0 +1,15 @@
+{% block header %}
+{% include 'site/header.html' %}
+{% endblock %}
+
+<div class="view_info left">
+  <div class="container">
+    <div id="content">
+      {% block content_pre %}{% endblock %}
+      {% block content %}{% endblock %}
+      {% block content_post %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+{% include 'site/footer.html' %}
