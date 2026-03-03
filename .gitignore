@@ -133,3 +133,4 @@ dmypy.json
 
 # Local configuration
 /peeringdb_mirror/settings/local.py
+/static/
