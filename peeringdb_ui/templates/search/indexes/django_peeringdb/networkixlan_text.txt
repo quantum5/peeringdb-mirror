@@ -1,0 +1,2 @@
+{% if object.ipaddr4 %}{{ object.ipaddr4 }}{% endif %}
+{% if object.ipaddr6 %}{{ object.ipaddr6 }}{% endif %}

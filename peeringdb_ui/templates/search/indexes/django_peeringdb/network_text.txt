@@ -1,0 +1,6 @@
+Network net {{ object.name }}
+{{ object.name_long|default:"" }}
+{{ object.aka|default:"" }}
+{{ object.irr_as_set }}
+
+AS{{ object.asn }} ASN{{ object.asn }} {{ object.asn }}
