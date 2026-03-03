@@ -1,3 +1,5 @@
+import datetime
+
 from django import template
 from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
@@ -132,3 +134,16 @@ def obj_type(ref_tag):
         "campus": "Campus",
     }
     return obj_types[ref_tag]
+
+
+@register.filter
+def age(dt):
+    seconds = (datetime.datetime.now().replace(tzinfo=dt.tzinfo) - dt).total_seconds()
+    if seconds < 60:
+        return f"{int(seconds)} {_("seconds ago")}"
+    elif seconds < 3600:
+        return f"{int(seconds / 60)} {_("minutes ago")}"
+    elif seconds < 86400:
+        return f"{int(seconds / 3600)} {_("hours ago")}"
+    else:
+        return f"{int(seconds / 86400)} {_("days ago")}"
