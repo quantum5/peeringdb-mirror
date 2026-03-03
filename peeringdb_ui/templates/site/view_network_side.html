@@ -50,7 +50,6 @@
     </div>
 
     {% for x in data.exchanges %}
-
     <div class="row item {% if x.operational %}operational{% endif %}">
       <div class="row squeeze-15 m-0 p-0">
         <div class="exchange col-6 col-sm-4 col-md-3" data-sort-value="{{ x.ixlan.ix.name }}" data-filter-value="{{ x.ixlan.ix.name }}">
@@ -66,60 +65,59 @@
             data-filter-value="{{ x.asn }}">
             {{ x.asn }}
           </div>
+        </div>
+        <div class="speed col-3 col-sm-2 col-md-2 d-none d-sm-block"
+             data-sort-value="{{ x.speed }}"
+             data-filter-value="{{ x.speed|pretty_speed }}"
+             data-edit-name="speed"
+             data-edit-value="{{ x.speed }}"
+             data-edit-required="yes">
+          {{ x.speed|pretty_speed }}
+        </div>
+        <div class="is_rs_peer col-sm-2 col-md-2 d-none d-sm-block text-center" data-edit-type="bool"
+             data-edit-name="is_rs_peer"
+             data-edit-template="check"
+             data-sort-value="{{ x.is_rs_peer }}"
+             data-edit-value="{{ x.is_rs_peer }}">
+          <img class="checkmark" src="{{ x.is_rs_peer|checkmark }}" alt="RS PEER" />
+        </div>
+        <div class="bfd_support col-sm-2 col-md-2 d-none d-sm-block text-center" data-edit-type="bool"
+             data-edit-name="bfd_support"
+             data-edit-template="check"
+             data-sort-value="{{ x.bfd_support }}"
+             data-edit-value="{{ x.bfd_support }}">
+          <img class="checkmark" src="{{ x.bfd_support|checkmark }}" alt="BFD Support" />
+        </div>
       </div>
-      <div class="speed col-3 col-sm-2 col-md-2 d-none d-sm-block"
-           data-sort-value="{{ x.speed }}"
-           data-filter-value="{{ x.speed|pretty_speed }}"
-           data-edit-name="speed"
-           data-edit-value="{{ x.speed }}"
-           data-edit-required="yes">
-        {{ x.speed|pretty_speed }}
+      <div class="ip-addr row squeeze-15 m-0 p-0">
+        <div class="col-12 col-sm-3">
+          <div class="ip4"
+               data-filter-value="{{ x.ipaddr4|none_blank }}"
+               data-sort-value="{{ x.ipaddr4|none_blank }} {{ x.ipaddr6|none_blank }}"
+               data-edit-name="ipaddr4">
+            {{ x.ipaddr4|none_blank }}
+          </div>
+        </div>
+        <div class="col-12 col-sm-3">
+          <div class="ip6"
+               data-filter-value="{{ x.ipaddr6|none_blank }}"
+               data-sort-value="{{ x.ipaddr6|none_blank }} {{ x.ipaddr4|none_blank }}"
+               data-edit-name="ipaddr6">
+            {{ x.ipaddr6|none_blank }}
+          </div>
+        </div>
+        <div class="col-12 col-sm-6">
+          <div class="net_side"
+               data-edit-name="fac_id">
+            {% if x.net_side %}
+            <a href="/{{x.net_side|ref_tag}}/{{ x.net_side.id }}" data-bs-toggle="tooltip" title="{{ x.net_side }}">{{ x.net_side.name }}</a>
+            {% endif %}
+          </div>
+        </div>
       </div>
-      <div class="is_rs_peer col-sm-2 col-md-2 d-none d-sm-block text-center" data-edit-type="bool"
-           data-edit-name="is_rs_peer"
-           data-edit-template="check"
-           data-sort-value="{{ x.is_rs_peer }}"
-           data-edit-value="{{ x.is_rs_peer }}">
-        <img class="checkmark" src="{{ x.is_rs_peer|checkmark }}" alt="RS PEER" />
-      </div>
-      <div class="bfd_support col-sm-2 col-md-2 d-none d-sm-block text-center" data-edit-type="bool"
-           data-edit-name="bfd_support"
-           data-edit-template="check"
-           data-sort-value="{{ x.bfd_support }}"
-           data-edit-value="{{ x.bfd_support }}">
-        <img class="checkmark" src="{{ x.bfd_support|checkmark }}" alt="BFD Support" />
-      </div>
-
     </div>
-    <div class="ip-addr row squeeze-15 m-0 p-0">
-      <div class="col-12 col-sm-3">
-        <div class="ip4"
-             data-filter-value="{{ x.ipaddr4|none_blank }}"
-             data-sort-value="{{ x.ipaddr4|none_blank }} {{ x.ipaddr6|none_blank }}"
-             data-edit-name="ipaddr4">
-          {{ x.ipaddr4|none_blank }}
-        </div>
-      </div>
-      <div class="col-12 col-sm-3">
-        <div class="ip6"
-             data-filter-value="{{ x.ipaddr6|none_blank }}"
-             data-sort-value="{{ x.ipaddr6|none_blank }} {{ x.ipaddr4|none_blank }}"
-             data-edit-name="ipaddr6">
-          {{ x.ipaddr6|none_blank }}
-        </div>
-      </div>
-      <div class="col-12 col-sm-6">
-        <div class="net_side"
-             data-edit-name="fac_id">
-          {% if x.net_side %}
-          <a href="/{{x.net_side|ref_tag}}/{{ x.net_side.id }}" data-bs-toggle="tooltip" title="{{ x.net_side }}">{{ x.net_side.name }}</a>
-          {% endif %}
-        </div>
-      </div>
-    </div>
+    {% endfor %}
   </div>
-
-{% endfor %}
 </div>
 
 <!-- PEERING FACILITIES -->
@@ -173,13 +171,12 @@
         {{ f.net.asn }}
       </div>
 
+      </div>
+      <div class="col-6 col-sm-6 col-md-6">
+        <div class="country" data-sort-value="{{ f.fac.country.name|lower }}" data-filter-value="{{ f.fac.country.name }}">{{ f.fac.country.name }}</div>
+        <div class="city" data-sort-value="{{ f.fac.city }}" data-filter-value="{{ f.fac.city }}">{{ f.fac.city }}</div>
+      </div>
     </div>
-    <div class="col-6 col-sm-6 col-md-6">
-      <div class="country" data-sort-value="{{ f.fac.country.name|lower }}" data-filter-value="{{ f.fac.country.name }}">{{ f.fac.country.name }}</div>
-      <div class="city" data-sort-value="{{ f.fac.city }}" data-filter-value="{{ f.fac.city }}">{{ f.fac.city }}</div>
-    </div>
+    {% endfor %}
   </div>
-
-  {% endfor %}
-
 </div>
