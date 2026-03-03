@@ -17,9 +17,9 @@ def make_page_title(entity):
 
     if entity and hasattr(entity, "HandleRef"):
         if entity.HandleRef.tag == "net":
-            return f"AS{entity.asn} - {entity.name} - PeeringDB"
+            return f"AS{entity.asn} - {entity.name} - PeeringDB Mirror"
         elif hasattr(entity, "name"):
-            return f"{entity.name} - PeeringDB"
+            return f"{entity.name} - PeeringDB Mirror"
 
 
 @register.filter
