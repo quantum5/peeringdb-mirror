@@ -94,13 +94,16 @@ class EntityIndex(indexes.SearchIndex):
 class MainEntity(EntityIndex):
     name = indexes.CharField()
     auto = indexes.EdgeNgramField()
-    result_name = indexes.CharField(model_attr="search_result_name", indexed=False)
+    result_name = indexes.CharField(indexed=False)
 
     def prepare_auto(self, obj):
         return self.prepare_name(obj)
 
     def prepare_name(self, obj):
         return unaccent(f"{obj.name} {obj.aka} {obj.name_long}")
+
+    def prepare_result_name(self, obj):
+        return obj.name
 
     def prepare(self, obj):
         data = super().prepare(obj)
@@ -148,6 +151,9 @@ class NetworkIndex(MainEntity, indexes.Indexable):
 
     def get_model(self):
         return Network
+
+    def prepare_result_name(self, obj):
+        return f"{obj.name} ({obj.asn})"
 
     def prepare_auto(self, obj):
         asn = obj.asn
