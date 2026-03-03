@@ -1,0 +1,96 @@
+{% load util %}
+{% load i18n %}
+<!-- PREFIXES -->
+
+<div class="list"
+     id="api-listing-ixpfx"
+     data-edit-module="api_listing"
+     data-edit-group="#view"
+     data-edit-target="api:ixpfx">
+
+  <h5>{% trans "Prefixes" %}</h5>
+
+  <div class="row header">
+    <div class="col-sm-3">
+      <div data-sort-target=".protocol" data-sort-initial="asc">{% trans "Protocol" %}</div>
+    </div>
+    <div class="col-sm-9">
+      <div data-sort-target=".prefix" class="ambiguous">{% trans "Prefix" %}</div>
+    </div>
+  </div>
+
+  <div
+      id="list-prefixes"
+      data-edit-component="list"
+      data-edit-template="prefix-item">
+
+    {% for prefix in prefixes %}
+    <div class="row sub">
+      <div class="col-sm-3 protocol">{{ prefix.protocol }}</div>
+      <div class="col-sm-9 prefix">{{ prefix.prefix }}</div>
+    </div>
+    {% endfor %}
+  </div>
+<!-- END ADD IXLAN PFX -->
+</div>
+
+<!-- IXFACS -->
+
+<div class="list"
+     id="api-listing-ixfac"
+     data-sort-container=".scrollable"
+     data-sort-row=".row"
+
+     data-edit-module="api_listing"
+     data-edit-group="#view"
+     data-edit-target="api:ixfac">
+  <div class="row">
+    <div class="col-sm-6 col-sm-8 col-md-8">
+      <h5>{% trans "Local Facilities" %}</h5>
+    </div>
+    <div class="col-sm-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-facilities" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-sm-6 col-sm-6 col-md-6">
+      <div data-sort-target=".facility" data-sort-initial="asc">{% trans "Facility" %}</div>
+    </div>
+    <div class="col-sm-3 col-sm-3 col-md-3">
+      <div data-sort-target=".country">{% trans "Country" %}</div>
+    </div>
+    <div class="col-sm-3 col-sm-3 col-md-3">
+      <div data-sort-target=".city">{% trans "City" %}</div>
+    </div>
+  </div>
+
+  <div class="scrollable"
+       id="list-facilities"
+       data-edit-component="list"
+       data-edit-template="ixfac-item">
+
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by" %} <b>{% trans "Facility" %}</b>, <b>{% trans "Country" %}</b> {% trans "or" %} <b>{% trans "City" %}.</b></div>
+    </div>
+
+    {% for f in data.facilities %}
+    <div class="row item">
+      <div class="col-sm-6 col-sm-6 col-md-6">
+        {% if permissions.can_delete %}
+        <a class="btn-row-delete" data-edit-toggled="edit" data-edit-action="remove">&times;</a>
+        {% endif %}
+        <div class="facility" data-sort-value="{{ f.fac.name|lower }}" data-filter-value="{{ f.fac.name }}">
+          <a href="/{{ f.fac|ref_tag }}/{{ f.fac.id }}">{{ f.fac.name }}</a>
+        </div>
+      </div>
+      <div class="col-sm-3 col-sm-3 col-md-3">
+        <div class="country" data-sort-value="{{ f.fac.country.name|lower }}" data-filter-value="{{ f.fac.country.name }}">{{ f.fac.country.name }}</div>
+      </div>
+      <div class="col-sm-3 col-sm-3 col-md-3">
+        <div class="city" data-sort-value="{{ f.fac.city }}" data-filter-value="{{ f.fac.city }}">{{ f.fac.city }}</div>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>

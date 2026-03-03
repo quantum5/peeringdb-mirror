@@ -1996,8 +1996,6 @@ class InternetExchangeSerializer(ModelSerializer):
     sales_phone = serializers.CharField(required=False, allow_blank=True, default="")
     sales_email = serializers.CharField(required=False, allow_blank=True, default="")
 
-    prefix = IPNetworkField()
-
     proto_unicast = serializers.SerializerMethodField()
     proto_ipv6 = serializers.SerializerMethodField()
 
@@ -2035,8 +2033,6 @@ class InternetExchangeSerializer(ModelSerializer):
                      "sales_email",
                      "fac_set",
                      "ixlan_set",
-                     # "suggest",
-                     "prefix",
                      "ixf_net_count",
                      "ixf_last_import",
                      "service_level",
@@ -2205,10 +2201,13 @@ class InternetExchangeSerializer(ModelSerializer):
         return self.sub_serializer(OrganizationSerializer, inst.org)
 
     def get_proto_ipv6(self, inst):
-        return inst.derived_proto_ipv6
+        return self.ixp_lan_active(inst).filter(protocol="IPv6").exists()
 
     def get_proto_unicast(self, inst):
-        return inst.derived_proto_unicast
+        return self.ixp_lan_active(inst).filter(protocol="IPv4").exists()
+
+    def ixp_lan_active(self, inst):
+        return inst.ixlan_set.first().ixpfx_set(manager="handleref").filter(status="ok")
 
 
 class CampusSerializer(ModelSerializer):

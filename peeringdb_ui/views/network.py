@@ -7,14 +7,14 @@ from peeringdb_ui.views.utils import BOOL_CHOICE, DoNotRender, field_help, forma
     view_http_error_404
 
 
-def view_network(request, id):
+def view_network(request, pk):
     """
     View network data for network specified by id.
     """
     try:
         network = NetworkSerializer.prefetch_related(
             Network.objects, request, depth=2, selective=["poc_set"]
-        ).get(id=id, status="ok")
+        ).get(pk=pk, status="ok")
     except ObjectDoesNotExist:
         return view_http_error_404(request)
 
