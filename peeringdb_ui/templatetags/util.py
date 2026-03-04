@@ -147,3 +147,13 @@ def age(dt):
         return f"{int(seconds / 3600)} {_("hours ago")}"
     else:
         return f"{int(seconds / 86400)} {_("days ago")}"
+
+
+@register.filter
+def ix_routeservers(ix):
+    return ix.ixlan_set.first().netixlan_set(manager="handleref").filter(status="ok").filter(is_rs_peer=True).count()
+
+
+@register.filter
+def prefix(ix):
+    return ix.ixlan_set.first().ixpfx_set(manager="handleref").filter(status="ok")

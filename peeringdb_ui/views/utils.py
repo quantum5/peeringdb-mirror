@@ -12,7 +12,7 @@ BOOL_CHOICE_WITH_OPT_OUT = (
 
 
 def view_http_error_404(request):
-    template = get_template(request, "site/error_404.html")
+    template = get_template("site/error_404.html")
     return HttpResponseNotFound(template.render({}, request))
 
 
