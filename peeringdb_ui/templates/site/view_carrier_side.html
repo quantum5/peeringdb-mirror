@@ -1,0 +1,57 @@
+{% load util %}
+{% load i18n %}
+
+<div class="list"
+     id="api-listing-carrierfac"
+     data-sort-container=".scrollable"
+     data-sort-row=".row">
+  <div class="row">
+    <div class="col-6 col-sm-8 col-md-8">
+      <h5>{% trans "Facilities" %}</h5>
+    </div>
+    <div class="col-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-facilities" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-6 col-sm-6 col-md-6">
+      <div data-sort-target=".facility" data-sort-initial="asc">{% trans "Facility" %}</div>
+    </div>
+    <div class="col-3 col-sm-3 col-md-3">
+      <div data-sort-target=".country">{% trans "Country" %}</div>
+    </div>
+    <div class="col-3 col-sm-3 col-md-3">
+      <div data-sort-target=".city">{% trans "City" %}</div>
+    </div>
+  </div>
+
+  <div class="scrollable"
+       id="list-facilities"
+       data-edit-component="list"
+       data-edit-template="carrierfac-item">
+
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by" %} <b>{% trans "Facility" %}</b>, <b>{% trans "Country" %}</b> {% trans "or" %} <b>{% trans "City" %}.</b></div>
+    </div>
+
+    {% for f in data.facilities %}
+    {% if f.status == "ok" %}
+    <div class="row item">
+      <div class="col-6 col-sm-6 col-md-6">
+        <div class="facility" data-sort-value="{{ f.fac.name|lower }}" data-filter-value="{{ f.fac.name }}">
+          <a href="/{{ f.fac|ref_tag }}/{{ f.fac.id }}">{{ f.fac.name }}</a>
+        </div>
+        <div class="status">{% if f.status == "pending" %}{% trans "Pending" %}{% endif %}</div>
+      </div>
+      <div class="col-3 col-sm-3 col-md-3">
+        <div class="country" data-sort-value="{{ f.fac.country.name|lower }}" data-filter-value="{{ f.fac.country.name }}">{{ f.fac.country.name }}</div>
+      </div>
+      <div class="col-3 col-sm-3 col-md-3">
+        <div class="city" data-sort-value="{{ f.fac.city }}" data-filter-value="{{ f.fac.city }}">{{ f.fac.city }}</div>
+      </div>
+    </div>
+  {% endif %}
+  {% endfor %}
+  </div>
+</div>

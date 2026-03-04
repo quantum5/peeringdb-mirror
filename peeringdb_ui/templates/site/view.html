@@ -278,20 +278,6 @@
            data-edit-value="{{ row.value }}"
            data-edit-name="{{ row.name }}">
         {{ row.value }}
-        {% if row.name == "notes" and row.value and request.user.is_authenticated %}
-        <div class="translate">
-          {% comment %} <!-- select name="language-from">
-                              <option value="" selected="selected" selected>Detect</option>
-                              {% for lang in LANGUAGES %} <option value="{{ lang.0 }}">{{ lang.1 }}</option> {% endfor %}
-                            </select -->
-          <!-- select name="language-to">
-            {% for lang in LANGUAGES %}
-              <option value="{{ lang.0 }}"{% ifequal LANGUAGE_CODE lang.0 %} selected="selected"{% endifequal %}>{{ lang.1 }}</option>
-            {% endfor %}
-          </select --> {% endcomment %}
-          <a class="btn btn-primary translate-btn btn-sm" style="vertical-align: bottom;">Translate &#xbb;</a>
-        </div>
-        {% endif %}
       </div>
       {% elif row.type == "safe" %}
       <div class="view_value col-8 col-sm-7 col-md-8"

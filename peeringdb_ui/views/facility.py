@@ -19,9 +19,9 @@ def view_facility(request, pk):
     except ObjectDoesNotExist:
         return view_http_error_404(request)
 
-    data = FacilitySerializer(facility, context={"user": request.user}).data
+    data = FacilitySerializer(facility).data
 
-    org = OrganizationSerializer(facility.org, context={"user": request.user}).data
+    org = OrganizationSerializer(facility.org).data
 
     exchanges = (
         InternetExchangeFacility.handleref.undeleted()
