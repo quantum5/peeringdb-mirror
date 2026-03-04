@@ -127,7 +127,9 @@ def search(term, autocomplete=False, user=None):
     pk_map = {tag: {} for tag in categories}
 
     for sq in search_query[:limit]:
-        if hasattr(sq, "model") or sq.HandleRef.tag == "netixlan":
+        if hasattr(sq, "model"):
+            categorize(sq, result, pk_map)
+        elif sq.HandleRef.tag == "netixlan":
             add_secondary_entries(sq, result, pk_map)
         else:
             append_result(
@@ -144,7 +146,13 @@ def search(term, autocomplete=False, user=None):
 
 
 def categorize(sq, result, pk_map):
-    add_secondary_entries(sq, result, pk_map)
+    if getattr(sq, "result_name", None):
+        # main entity
+        tag = sq.model.HandleRef.tag
+        org_id = int(sq.pk) if tag == "org" else sq.org_id
+        append_result(tag, int(sq.pk), sq.result_name, org_id, None, result, pk_map)
+    else:
+        add_secondary_entries(sq, result, pk_map)
 
 
 def add_secondary_entries(sq, result, pk_map):

@@ -174,8 +174,8 @@ class NetworkIXLanIndex(EntityIndex, indexes.Indexable):
     ix_org_id = indexes.IntegerField(indexed=False, model_attr="ixlan__ix__org_id")
     ix_result_name = indexes.CharField(indexed=False)
 
-    net_id = indexes.IntegerField(indexed=False, model_attr="network_id")
-    net_org_id = indexes.IntegerField(indexed=False, model_attr="network__org_id")
+    net_id = indexes.IntegerField(indexed=False, model_attr="net_id")
+    net_org_id = indexes.IntegerField(indexed=False, model_attr="net__org_id")
     net_result_name = indexes.CharField(indexed=False)
 
     net_sub_result_name = indexes.CharField(indexed=False)
@@ -185,16 +185,17 @@ class NetworkIXLanIndex(EntityIndex, indexes.Indexable):
     ipaddr6 = indexes.CharField(indexed=False)
 
     class Meta:
-        relations = ["network", "ixlan__ix", "network__org", "ixlan__ix__org"]
+        relations = ["net", "ixlan__ix", "net__org", "ixlan__ix__org"]
 
     def get_model(self):
         return NetworkIXLan
 
     def prepare_ix_result_name(self, obj):
-        return obj.ixlan.ix.search_result_name
+        return obj.ixlan.ix.name
 
     def prepare_net_result_name(self, obj):
-        return obj.network.search_result_name
+        network = obj.net
+        return f"{network.name} ({network.asn})"
 
     def prepare_ix_sub_result_name(self, obj):
         if obj.ipaddr4 and obj.ipaddr6:
@@ -206,7 +207,7 @@ class NetworkIXLanIndex(EntityIndex, indexes.Indexable):
 
     def prepare_net_sub_result_name(self, obj):
         ips = self.prepare_ix_sub_result_name(obj)
-        return f"{obj.ixlan.ix.search_result_name} {ips}"
+        return f"{obj.ixlan.ix.name} {ips}"
 
     def prepare_ipaddr4(self, obj):
         if obj.ipaddr4:
@@ -233,7 +234,7 @@ class IXLanPrefixIndex(EntityIndex, indexes.Indexable):
         return IXLanPrefix
 
     def prepare_ix_result_name(self, obj):
-        return obj.ixlan.ix.search_result_name
+        return obj.ixlan.ix.name
 
     def prepare_ix_sub_result_name(self, obj):
         return obj.prefix
