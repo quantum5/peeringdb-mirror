@@ -1,0 +1,218 @@
+{% load util %}
+{% load i18n %}
+
+<!-- FACILITIES -->
+
+{% if data.facilities %}
+<div class="list" id="api-listing-fac" data-sort-container=".scrollable" data-sort-row=".row.item">
+  <div class="row">
+    <div class="col-6 col-sm-8 col-md-8">
+      <h5>{% trans "Facilities" %}</h5>
+    </div>
+    <div class="col-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-facilities" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-6 col-sm-6 col-md-6">
+      <div data-sort-target=".name" data-sort-initial="asc">{% trans "Name" %}</div>
+    </div>
+    <div class="col-6 col-sm-6 col-md-6">
+      <div data-sort-target=".country">{% trans "Country" %}</div>
+      <div data-sort-target=".country">{% trans "City" %}</div>
+    </div>
+  </div>
+
+  <div class="scrollable" id="list-facilities">
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by" %} <b>{% trans "Name" %}</b>, <b>{% trans "Country" %}</b> {% trans "or" %} <b>{% trans "City" %}.</b></div>
+    </div>
+
+    {% for n in data.facilities %}
+    <div class="row item status-{{ n.status }}">
+      <div class="col-6 col-sm-6 col-md-6">
+        <div class="name" data-sort-value="{{ n.name|lower }}" data-filter-value="{{ n.name }}">
+          <a {% if n.status == "ok" %} href="/fac/{{ n.id }}" {% else %} style="text-decoration: none !important;" {% endif %}>{{ n.name }}</a>
+        </div>
+      </div>
+      <div class="col-6 col-sm-6 col-md-6">
+        <div class="country" data-sort-value="{{ n.country.name|lower }}" data-filter-value="{{ n.country.name }}">{{ n.country.name }}</div>
+        <div class="city" data-sort-value="{{ n.city }}" data-filter-value="{{ n.city }}">{{ n.city }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+<!-- NETWORKS -->
+
+{% if data.networks %}
+<div class="list" id="api-listing-net" data-sort-container=".scrollable" data-sort-row=".row.item">
+
+  <div class="row">
+    <div class="col-6 col-sm-8 col-md-8">
+      <h5>{% trans "Networks" %}</h5>
+    </div>
+    <div class="col-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-networks" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-9 col-sm-9 col-md-9">
+      <div data-sort-target=".name" data-sort-initial="asc">{% trans "Name" %}</div>
+    </div>
+    <div class="col-3 col-sm-3 col-md-3">
+      <div data-sort-target=".asn" class="numeric">{% trans "ASN" %}</div>
+    </div>
+  </div>
+
+  <div class="scrollable" id="list-networks">
+
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by"%} <b>{% trans "Name" %}</b> {% trans "or" %} <b>{% trans "ASN" %}.</b></div>
+    </div>
+
+    {% for n in data.networks %}
+
+    <div class="row item status-{{ n.status }}" data-edit-id="{{ n.id }}" data-edit-label="{% trans "Network" %}: {{ n.name }}">
+      <div class="col-9 col-sm-9 col-md-9">
+        <div class="name" data-sort-value="{{ n.name|lower }}" data-filter-value="{{ n.name }}">
+          <a {% if n.status == "ok" %} href="/net/{{ n.id }}" {% else %} style="text-decoration: none !important;" {% endif %}>{{ n.name }}</a>
+        </div>
+      </div>
+      <div class="col-3 col-sm-3 col-md-3">
+        <div class="asn" data-sort-value="{{ n.asn }}" data-filter-value="{{ n.asn }}">{{ n.asn }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- EXCHANGES -->
+{% if data.exchanges %}
+<div class="list" id="api-listing-ix" data-sort-container=".scrollable" data-sort-row=".row.item">
+  <div class="row">
+    <div class="col-6 col-sm-8 col-md-8">
+      <h5>{% trans "Exchanges" %}</h5>
+    </div>
+    <div class="col-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-exchanges" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-6 col-sm-6 col-md-6">
+      <div data-sort-target=".name" data-sort-initial="asc">{% trans "Name"%}</div>
+    </div>
+    <div class="col-6 col-sm-6 col-md-6">
+      <div data-sort-target=".country">{% trans "Country"%}</div>
+      <div data-sort-target=".country">{% trans "City"%}</div>
+    </div>
+  </div>
+
+  <div class="scrollable"
+       id="list-exchanges"
+       data-edit-component="list"
+       data-edit-template="exchange-item">
+
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by" %} <b>{% trans "Name" %}</b>, <b>{% trans "Country" %}</b> {% trans "or" %} <b>{% trans "City" %}.</b></div>
+    </div>
+
+    {% for n in data.exchanges %}
+    <div class="row item status-{{ n.status }}" data-edit-id="{{ n.id }}" data-edit-label="{% trans "Exchange" %}: {{ n.name }}">
+      <div class="col-6 col-sm-6 col-md-6">
+        <div class="name" data-sort-value="{{ n.name|lower }}" data-filter-value="{{ n.name }}">
+          <a {% if n.status == "ok" %} href="/ix/{{ n.id }}" {% else %} style="text-decoration: none !important;" {% endif %}>{{ n.name }}</a>
+        </div>
+      </div>
+      <div class="col-6 col-sm-6 col-md-6">
+        <div class="country" data-sort-value="{{ n.country.name|lower }}" data-filter-value="{{ n.country.name }}">{{ n.country.name }}</div>
+        <div class="city" data-sort-value="{{ n.city }}" data-filter-value="{{ n.city }}">{{ n.city }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- CARRIERS -->
+
+{% if data.carriers %}
+<div class="list" id="api-listing-carrier" data-sort-container=".scrollable" data-sort-row=".row.item">
+  <div class="row">
+    <div class="col-6 col-sm-8 col-md-8">
+      <h5>{% trans "Carriers" %}</h5>
+    </div>
+    <div class="col-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-carriers" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-12 col-sm-12 col-md-12">
+      <div data-sort-target=".name" data-sort-initial="asc">{% trans "Name" %}</div>
+    </div>
+  </div>
+
+  <div class="scrollable" id="list-carriers">
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by" %} <b>{% trans "Name" %}</b></div>
+    </div>
+
+    {% for n in data.carriers %}
+    <div class="row item status-{{ n.status }}" data-edit-id="{{ n.id }}" data-edit-label="{{ n.name }}">
+      <div class="col-12 col-sm-12 col-md-12">
+        <div class="name" data-sort-value="{{ n.name|lower }}" data-filter-value="{{ n.name }}">
+          <a {% if n.status == "ok" %} href="/carrier/{{ n.id }}" {% else %} style="text-decoration: none !important;" {% endif %}>{{ n.name }}</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% endif %}
+
+{% if data.campuses %}
+<div class="list" id="api-listing-campus" data-sort-container=".scrollable" data-sort-row=".row.item">
+  <div class="row">
+    <div class="col-6 col-sm-8 col-md-8">
+      <h5>{% trans "Campuses" %}</h5>
+    </div>
+    <div class="col-6 col-sm-4 col-md-4 filter">
+      <input type="text" placeholder="{% trans "Filter" %}" data-filter-target="#list-campuses" class="form-control" />
+    </div>
+  </div>
+  <div class="row header">
+    <div class="col-12 col-sm-12 col-md-12">
+      <div data-sort-target=".name" data-sort-initial="asc">{% trans "Name" %}</div>
+    </div>
+  </div>
+
+  <div class="scrollable"
+       id="list-campuses"
+       data-edit-component="list"
+       data-edit-template="campus-item">
+
+    <div class="empty-result">
+      <div class="message">{% trans "No filter matches." %}</div>
+      <div class="help">{% trans "You may filter by" %} <b>{% trans "Name" %}</b></div>
+    </div>
+
+    {% for n in data.campuses %}
+    <div class="row item status-{{ n.status }}" data-edit-id="{{ n.id }}" data-edit-label="{{ n.name }}">
+      <div class="col-12 col-sm-12 col-md-12">
+        <div class="name" data-sort-value="{{ n.name|lower }}" data-filter-value="{{ n.name }}">
+          <a {% if n.status != "deleted" %} href="/campus/{{ n.id }}" {% else %} style="text-decoration: none !important;" {% endif %}>{{ n.name }}</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% endif %}

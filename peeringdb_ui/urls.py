@@ -6,6 +6,7 @@ from peeringdb_ui.views.facility import view_facility
 from peeringdb_ui.views.index import view_index
 from peeringdb_ui.views.ix import view_exchange
 from peeringdb_ui.views.network import view_network
+from peeringdb_ui.views.organization import view_organization
 from peeringdb_ui.views.search import request_search
 
 urlpatterns = [
@@ -16,4 +17,5 @@ urlpatterns = [
     path('fac/<int:pk>', view_facility, name='fac-view'),
     path('carrier/<int:pk>', view_carrier, name='carrier-view'),
     path('campus/<int:pk>', view_campus, name='campus-view'),
+    path('org/<int:pk>', view_organization, name='org-view'),
 ]
