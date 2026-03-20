@@ -16,8 +16,13 @@ def format_for_field(field, value):
 class PeeringDBListView(BaseListView):
     def get(self, request, *args, **kwargs):
         queryset: QuerySet = self.model.objects.all()
+        limit = None
 
-        for k, v in self.request.GET.items():
+        for k, v in request.GET.items():
+            if k == 'limit':
+                limit = int(v)
+                continue
+
             _, final_field, _, _ = queryset.query.names_to_path(k.split('__'), self.model._meta)
 
             try:
@@ -29,6 +34,9 @@ class PeeringDBListView(BaseListView):
                 return JsonResponse({'data': [], 'meta': {'error': 'Entity not found'}}, status=404)
 
             queryset = queryset.filter(**{k: value})
+
+        if limit is not None:
+            queryset = queryset[:limit]
 
         return JsonResponse({'data': serialize_many(queryset)})
 
